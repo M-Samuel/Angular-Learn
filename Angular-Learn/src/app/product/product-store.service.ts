@@ -29,6 +29,7 @@ export class ProductStoreService {
   }
 
   httpGetAllProducts(): Observable<Product[]>{
+    console.log(this._productStore)
     return of(this._productStore);
   }
 

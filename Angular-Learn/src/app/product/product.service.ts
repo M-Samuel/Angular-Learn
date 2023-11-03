@@ -11,9 +11,11 @@ export class ProductService {
   private readonly _httpClient: ProductStoreService = inject(ProductStoreService)
   constructor() { }
 
-  readonly products$: Observable<Product[]> = this._httpClient.httpGetAllProducts()
+  products$(): Observable<Product[]>{
+    return this._httpClient.httpGetAllProducts()
+  }
 
-  createProduct(product:Product){
-    this._httpClient.httpPostProduct(product)
+  createProduct(product:Product): Observable<Product>{
+    return this._httpClient.httpPostProduct(product)
   }
 }

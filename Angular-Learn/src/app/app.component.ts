@@ -11,7 +11,7 @@ export class AppComponent {
 
   private readonly _productService:ProductService = inject(ProductService)
 
-  readonly products$ = this._productService.products$
+  readonly products$ = this._productService.products$()
 
   createProduct(){
     this._productService.createProduct({name:"Smarties",image:""})
