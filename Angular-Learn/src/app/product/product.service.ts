@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, OperatorFunction, Subject, filter, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, filter, map, shareReplay, switchMap, tap } from 'rxjs';
 import { Product } from '../types/product';
 import { DataStoreService } from '../DataStore/data-store.service';
 
@@ -47,7 +47,8 @@ export class ProductService {
     filter(state => !!state.newProduct),
     map(state => state.newProduct) as OperatorFunction<State,Product>,
     switchMap(product => this._httpClient.httpPostProduct(product)),
-    tap(product => this.emitEvent({action: 'RequestAllProducts', value: undefined}))
+    tap(product => this.emitEvent({action: 'RequestAllProducts', value: undefined})),
+    shareReplay(1)
   )
 }
 
