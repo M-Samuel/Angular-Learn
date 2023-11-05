@@ -1,4 +1,4 @@
 <p *ngFor="let product of products$ | async">{{product.id}} - {{product.name}}</p>
 <button (click)="createProduct()">Create Product Astor</button>
-<p *ngIf="createdProduct$ | async as createdProduct">{{createdProduct.id}} - {{createdProduct.name}}</p>
-<p *ngIf="createdProduct$ | async as createdProduct">{{createdProduct.id}} - {{createdProduct.name}}</p>
+<p *ngIf="createdProduct$ | async as createdProduct">Created Product Sub1-> {{createdProduct.id}} - {{createdProduct.name}}</p>
+<p *ngIf="createdProduct$ | async as createdProduct">Created Product Sub2-> {{createdProduct.id}} - {{createdProduct.name}}</p>
