@@ -1,2 +1,3 @@
 <p *ngFor="let product of products$ | async">{{product.id}} - {{product.name}}</p>
 <button (click)="createProduct()">Create Product Astor</button>
+<p *ngIf="createdProduct$ | async as createdProduct">{{createdProduct.id}} - {{createdProduct.name}}</p>
