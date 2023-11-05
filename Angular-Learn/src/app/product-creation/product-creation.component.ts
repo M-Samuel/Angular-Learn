@@ -44,7 +44,7 @@ export class ProductCreationComponent{
 }
 
 
-function simpleUrlValidator(control:AbstractControl): ValidationErrors | null{
+export function simpleUrlValidator(control:AbstractControl): ValidationErrors | null{
   const value:string = control.value
   if(!value) return null
 

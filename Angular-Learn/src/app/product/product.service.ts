@@ -33,10 +33,10 @@ export class ProductService {
     let newState:State = {...oldState, lastEvent: stateEvent}
     if(stateEvent.action === 'CreateNewProduct')
       Object.assign(newState,{newProduct: stateEvent.value})
-    if(stateEvent.action === 'RequestSingleProduct')
+    else if(stateEvent.action === 'RequestSingleProduct')
       Object.assign(newState,{productId: stateEvent.value})
-
-      console.log(newState)
+    else if(stateEvent.action === 'EditProduct')
+      Object.assign(newState,{editedProduct: stateEvent.value})
     return newState
   }
 
@@ -60,6 +60,13 @@ export class ProductService {
     map(state => state.productId) as OperatorFunction<State,number>,
     switchMap(productId => this._httpClient.httpGetProduct(productId)),
   )
+
+  readonly editedProduct$: Observable<Product> = this._state$.pipe(
+    filter(state => state.lastEvent.action === 'EditProduct'),
+    filter(state => !!state.editedProduct),
+    map(state => state.editedProduct) as OperatorFunction<State,Product>,
+    switchMap(product => this._httpClient.httpPutProduct(product))
+  )
 }
 
 export interface StateEvent{
@@ -68,11 +75,13 @@ export interface StateEvent{
   'PageLoad'|
   'CreateNewProduct'|
   'RequestAllProducts'|
-  'RequestSingleProduct'
+  'RequestSingleProduct'|
+  'EditProduct'
 }
 
 interface State{
   lastEvent: StateEvent,
   newProduct?: Product,
   productId?: number
+  editedProduct?: Product
 }

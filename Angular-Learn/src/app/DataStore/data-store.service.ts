@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { EMPTY, Observable, map, of, throwError } from 'rxjs';
+import { EMPTY, Observable, delay, map, of, throwError } from 'rxjs';
 import { Product } from '../types/product';
 import { ProductInventory } from '../types/product-inventory';
 import { ProductTransaction } from '../types/product-transaction';
@@ -27,16 +27,13 @@ export class DataStoreService {
           throw new Error("Product not found")
         else
           return products[index]
-      }),
+      })
     )
   }
 
   httpGetAllProducts(): Observable<Product[]>{
     return of(null).pipe(
-      map(_ => {
-        console.log(this._productStore)
-        return this._productStore;
-      })
+      map(_ => this._productStore)
     )
   }
 

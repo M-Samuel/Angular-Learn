@@ -1,2 +1,27 @@
-<p>{{product.id}} - {{product.name}}</p>
+<p>Edit Product {{product.id}} - {{product.name}}</p>
 <img [src]="product.image">
+<form [formGroup]="editProductFG" (ngSubmit)="onSubmit()">
+    <label for="name">Product Name:</label>
+    <input
+        type="text"
+        placeholder="Product Name"
+        formControlName="name"
+        id="name"
+    >
+    <br>
+    <label for="image">Product Image Url:</label>
+    <input
+        type="text"
+        placeholder="Product Image Url"
+        formControlName="image"
+        id="image"
+    >
+    <br>
+    <button type="submit">Edit Product</button>
+    <ng-container *ngIf="hasSubmitted">
+        <p class="errors" *ngIf="nameControl.errors?.['required']">Product Name is required</p>
+        <p class="errors" *ngIf="imageControl.errors?.['required']">Product Image Url is required</p>
+        <p class="errors" *ngIf="nameControl.errors?.['maxlength']">Product Name should not exceed {{nameControl.errors?.['maxlength'].requiredLength}} characters, actual:{{nameControl.errors?.['maxlength'].actualLength}}</p>
+        <p class="errors" *ngIf="imageControl.errors?.['invalidUrlFormat']">Product Image URL should contain "http"</p>
+    </ng-container>
+</form>
