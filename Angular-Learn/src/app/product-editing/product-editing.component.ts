@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../types/product';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ProductService } from '../product/product.service';
@@ -16,9 +16,11 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
   product!: Product
   hasSubmitted: boolean = false
   editedProductSubscription: Subscription;
+  deletedProductSubscription: Subscription;
 
   private readonly _formBuilder = inject(FormBuilder)
   private readonly _productService = inject(ProductService)
+  private readonly _router = inject(Router)
 
   readonly editProductFG = this._formBuilder.group({
     name: new FormControl<string|null>(null,{validators: [Validators.required, Validators.maxLength(20)], updateOn: 'submit'}),
@@ -26,14 +28,19 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
   })
 
   readonly editedProduct$: Observable<Product> = this._productService.editedProduct$
+  readonly deletedProduct$: Observable<Product> = this._productService.deletedProduct$
   
   constructor(){
     this.editedProductSubscription = this.editedProduct$.subscribe(
       editedProduct => this.product = editedProduct
     )
+    this.deletedProductSubscription = this.deletedProduct$.subscribe(
+      deleteProduct => this._router.navigate(['/product/all'])
+    )
   }
   ngOnDestroy(): void {
     this.editedProductSubscription.unsubscribe()
+    this.deletedProductSubscription.unsubscribe()
   }
 
   ngOnInit(): void {
@@ -63,4 +70,8 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
     return this.editProductFG.controls['image']
   }
 
+
+  onDelete(){
+    this._productService.emitEvent({action: 'DeleteProduct', value: this.product})
+  }
 }

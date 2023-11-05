@@ -37,6 +37,8 @@ export class ProductService {
       Object.assign(newState,{productId: stateEvent.value})
     else if(stateEvent.action === 'EditProduct')
       Object.assign(newState,{editedProduct: stateEvent.value})
+    else if(stateEvent.action === 'DeleteProduct')
+      Object.assign(newState,{deletedProduct: stateEvent.value})
     return newState
   }
 
@@ -50,8 +52,7 @@ export class ProductService {
     filter(state => state.lastEvent.action === 'CreateNewProduct'),
     filter(state => !!state.newProduct),
     map(state => state.newProduct) as OperatorFunction<State,Product>,
-    switchMap(product => this._httpClient.httpPostProduct(product)),
-    shareReplay(1)
+    switchMap(product => this._httpClient.httpPostProduct(product))
   )
 
   readonly productById$: Observable<Product> = this._state$.pipe(
@@ -67,6 +68,13 @@ export class ProductService {
     map(state => state.editedProduct) as OperatorFunction<State,Product>,
     switchMap(product => this._httpClient.httpPutProduct(product))
   )
+
+  readonly deletedProduct$: Observable<Product> = this._state$.pipe(
+    filter(state => state.lastEvent.action === 'DeleteProduct'),
+    filter(state => !!state.deletedProduct),
+    map(state => state.deletedProduct) as OperatorFunction<State,Product>,
+    switchMap(product => this._httpClient.httpDeleteProduct(product))
+  )
 }
 
 export interface StateEvent{
@@ -76,7 +84,8 @@ export interface StateEvent{
   'CreateNewProduct'|
   'RequestAllProducts'|
   'RequestSingleProduct'|
-  'EditProduct'
+  'EditProduct'|
+  'DeleteProduct'
 }
 
 interface State{
@@ -84,4 +93,5 @@ interface State{
   newProduct?: Product,
   productId?: number
   editedProduct?: Product
+  deletedProduct?: Product
 }

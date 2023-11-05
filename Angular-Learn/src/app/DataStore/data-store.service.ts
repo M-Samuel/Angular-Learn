@@ -24,7 +24,7 @@ export class DataStoreService {
         const products = [...this._productStore]
         const index = products.findIndex(p => p.id === id)
         if(index < 0)
-          throw new Error("Product not found")
+          throw new Error("Product not found - GET")
         else
           return products[index]
       })
@@ -41,7 +41,7 @@ export class DataStoreService {
     return of(null).pipe(
       map(_ => {
         const products = [...this._productStore]
-        const newId = Math.max(...products.map(p => p.id ?? 0)) + 1
+        const newId = products.length === 0 ? 1 : (Math.max(...products.map(p => p.id ?? 0)) + 1)
         product.id = newId
         products.push(product)
 
@@ -57,7 +57,7 @@ export class DataStoreService {
         const products = [...this._productStore]
         const index = products.findIndex(p => p.id === updatedProduct.id)
         if(index < 0)
-          throw new Error('Product Not Found')
+          throw new Error('Product Not Found - EDIT')
         else{
           products[index] = updatedProduct
           this._productStore = products
@@ -68,15 +68,21 @@ export class DataStoreService {
   }
 
   httpDeleteProduct(deletedProduct: Product): Observable<Product>{
-    let products = [...this._productStore]
-    const index = products.findIndex(p => p.id === deletedProduct.id)
-    if(index < 0)
-      return throwError(() => 'Product Not Found')
-    else{
-      products = products.filter(p => p.id !== deletedProduct.id)
-      this._productStore = products
-      return of(deletedProduct)
-    }
+    return of(null).pipe(
+      map(_ => {
+        let products = [...this._productStore]
+        console.log(products)
+        const index = products.findIndex(p => p.id === deletedProduct.id)
+        if(index < 0)
+          throw new Error('Product Not Found - DELETE')
+        else{
+          products = products.filter(p => p.id !== deletedProduct.id)
+          this._productStore = products
+          return deletedProduct
+        }
+      })
+    )
+    
   }
 
   httpPostProductTransaction(productTransaction: ProductTransaction): Observable<ProductTransaction>{
