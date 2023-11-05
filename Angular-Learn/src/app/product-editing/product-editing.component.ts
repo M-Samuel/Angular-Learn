@@ -38,6 +38,8 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.product = this.activateRoute.snapshot.data['product']
+    this.nameControl.setValue(this.product.name)
+    this.imageControl.setValue(this.product.image)
   }
 
   onSubmit(){
