@@ -12,8 +12,8 @@ export class DataStoreService {
   constructor() { }
 
   private _productStore: Product[] = [
-    {id: 1, name:"Astor", image:""},
-    {id: 2, name:"Twisties", image:""},
+    {id: 1, name:"Astor", image:"https://metiecom.s3.us-east-2.amazonaws.com/800_X_800/100277.jpg"},
+    {id: 2, name:"Twisties", image:"https://metiecom.s3.us-east-2.amazonaws.com/800_X_800/129799.jpg"},
   ]
   private _productInvetoryStore: ProductInventory[] = []
   private _productTransactionStore: ProductTransaction[] = []
