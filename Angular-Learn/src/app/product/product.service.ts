@@ -32,7 +32,11 @@ export class ProductService {
   dispatchEvent(stateEvent: StateEvent, oldState: State): State{
     let newState:State = {...oldState, lastEvent: stateEvent}
     if(stateEvent.action === 'CreateNewProduct')
-      newState = {...newState, newProduct: stateEvent.value}
+      Object.assign(newState,{newProduct: stateEvent.value})
+    if(stateEvent.action === 'RequestSingleProduct')
+      Object.assign(newState,{productId: stateEvent.value})
+
+      console.log(newState)
     return newState
   }
 
@@ -47,8 +51,14 @@ export class ProductService {
     filter(state => !!state.newProduct),
     map(state => state.newProduct) as OperatorFunction<State,Product>,
     switchMap(product => this._httpClient.httpPostProduct(product)),
-    tap(product => this.emitEvent({action: 'RequestAllProducts', value: undefined})),
     shareReplay(1)
+  )
+
+  readonly productById$: Observable<Product> = this._state$.pipe(
+    filter(state => state.lastEvent.action === 'RequestSingleProduct'),
+    filter(state => !!state.productId),
+    map(state => state.productId) as OperatorFunction<State,number>,
+    switchMap(productId => this._httpClient.httpGetProduct(productId)),
   )
 }
 
@@ -57,10 +67,12 @@ export interface StateEvent{
   action: 
   'PageLoad'|
   'CreateNewProduct'|
-  'RequestAllProducts'
+  'RequestAllProducts'|
+  'RequestSingleProduct'
 }
 
 interface State{
   lastEvent: StateEvent,
-  newProduct?: Product
+  newProduct?: Product,
+  productId?: number
 }

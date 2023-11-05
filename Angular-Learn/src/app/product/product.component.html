@@ -1,3 +1,4 @@
 <p *ngFor="let product of products$ | async">{{product.id}} - {{product.name}}
     <img [src]="product.image">
+    <a routerLink="/product/{{product.id}}/edit" #productEditLink>Edit</a>
 </p>
