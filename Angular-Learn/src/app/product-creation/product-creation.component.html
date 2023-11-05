@@ -1,0 +1,16 @@
+<p>Create a new Product</p>
+<form [formGroup]="createProductFG" (ngSubmit)="onSubmit()">
+    <input
+        type="text"
+        placeholder="Product Name"
+        formControlName="name"
+    >
+    <input
+        type="text"
+        placeholder="Product Image Url"
+        formControlName="image"
+    >
+    <button type="submit" [disabled]="createProductFG.invalid">Create Product</button>
+</form>
+
+<p *ngIf="createdProduct$ | async as createdProduct">Product {{createdProduct.name}} created. Id is {{createdProduct.id}}</p>
