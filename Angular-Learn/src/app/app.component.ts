@@ -9,11 +9,5 @@ import { ProductService } from './product/product.service';
 export class AppComponent {
   title = 'Angular-Learn';
 
-  private readonly _productService:ProductService = inject(ProductService)
-
-  readonly products$ = this._productService.products$()
-
-  createProduct(){
-    this._productService.createProduct({name:"Smarties",image:""})
-  }
+  
 }

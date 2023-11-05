@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, filter, map, of, throwError } from 'rxjs';
+import { EMPTY, Observable, map, of, throwError } from 'rxjs';
 import { Product } from '../types/product';
 import { ProductInventory } from '../types/product-inventory';
 import { ProductTransaction } from '../types/product-transaction';
-import { MaxLengthValidator } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ProductStoreService {
+export class DataStoreService {
 
   constructor() { }
 
@@ -20,39 +19,55 @@ export class ProductStoreService {
   private _productTransactionStore: ProductTransaction[] = []
 
   httpGetProduct(id: number): Observable<Product>{
-    const products = [...this._productStore]
-    const index = products.findIndex(p => p.id === id)
-    if(index < 0)
-      return throwError(() => 'Product Not Found')
-    else
-      return of(products[index])
+    return of(null).pipe(
+      map(_ => {
+        const products = [...this._productStore]
+        const index = products.findIndex(p => p.id === id)
+        if(index < 0)
+          throw new Error("Product not found")
+        else
+          return products[index]
+      }),
+    )
   }
 
   httpGetAllProducts(): Observable<Product[]>{
-    console.log(this._productStore)
-    return of(this._productStore);
+    return of(null).pipe(
+      map(_ => {
+        console.log(this._productStore)
+        return this._productStore;
+      })
+    )
   }
 
   httpPostProduct(product: Product): Observable<Product>{
-    const products = [...this._productStore]
-    const newId = Math.max(...products.map(p => p.id ?? 0)) + 1
-    product.id = newId
-    products.push(product)
+    return of(null).pipe(
+      map(_ => {
+        const products = [...this._productStore]
+        const newId = Math.max(...products.map(p => p.id ?? 0)) + 1
+        product.id = newId
+        products.push(product)
 
-    this._productStore = products
-    return of(product)
+        this._productStore = products
+        return product
+      })
+    )
   }
 
   httpPutProduct(updatedProduct: Product): Observable<Product>{
-    const products = [...this._productStore]
-    const index = products.findIndex(p => p.id === updatedProduct.id)
-    if(index < 0)
-      return throwError(() => 'Product Not Found')
-    else{
-      products[index] = updatedProduct
-      this._productStore = products
-      return of(updatedProduct)
-    }
+    return of(null).pipe(
+      map(_ => {
+        const products = [...this._productStore]
+        const index = products.findIndex(p => p.id === updatedProduct.id)
+        if(index < 0)
+          throw new Error('Product Not Found')
+        else{
+          products[index] = updatedProduct
+          this._productStore = products
+          return updatedProduct
+        }
+      })
+    )
   }
 
   httpDeleteProduct(deletedProduct: Product): Observable<Product>{
@@ -68,13 +83,17 @@ export class ProductStoreService {
   }
 
   httpPostProductTransaction(productTransaction: ProductTransaction): Observable<ProductTransaction>{
-    const transactions = [...this._productTransactionStore]
-    const transaction = {...productTransaction, date: new Date()}
-    transactions.push(transaction)
-  
-    this._productTransactionStore = transactions
-    this._updateInventory(transaction);
-    return of(transaction)
+    return of(null).pipe(
+      map(_ => {
+        const transactions = [...this._productTransactionStore]
+        const transaction = {...productTransaction, date: new Date()}
+        transactions.push(transaction)
+      
+        this._productTransactionStore = transactions
+        this._updateInventory(transaction);
+        return transaction
+      })
+    )
   }
 
   private _updateInventory(productTransaction: ProductTransaction) {
@@ -111,4 +130,5 @@ export class ProductStoreService {
   httpGetAllInventories(): Observable<ProductInventory[]>{
     return of(this._productInvetoryStore)
   }
+  
 }

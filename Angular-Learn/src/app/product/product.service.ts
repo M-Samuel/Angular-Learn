@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { ProductStoreService } from './product-store.service';
 import { Observable } from 'rxjs';
 import { Product } from '../types/product';
+import { DataStoreService } from '../DataStore/data-store.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
 
-  private readonly _httpClient: ProductStoreService = inject(ProductStoreService)
+  private readonly _httpClient: DataStoreService = inject(DataStoreService)
   constructor() { }
 
   products$(): Observable<Product[]>{
