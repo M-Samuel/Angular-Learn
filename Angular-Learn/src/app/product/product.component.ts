@@ -12,6 +12,11 @@ export class ProductComponent {
   products$ = this._productService.products$()
 
   createProduct(){
-    this._productService.createProduct({name:"Smarties",image:""})
+    this._productService.createProduct({name:"Smarties",image:""}).subscribe(
+      createdProducted => {
+        console.log(createdProducted,'created product')
+        this.products$ = this._productService.products$()
+      }
+    )
   }
 }
