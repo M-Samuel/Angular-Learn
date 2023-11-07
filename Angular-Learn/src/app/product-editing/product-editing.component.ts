@@ -55,7 +55,7 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
       const product: Product = {...this.product} as Product
       Object.assign(product, this.editProductFG.value)
       console.log(product)
-      this._productService.emitEvent({action:'EditProduct',value:product})
+      this._productService.emitEventEditProduct(product)
     }
     else{
       console.log(this.editProductFG)
@@ -72,6 +72,6 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
 
 
   onDelete(){
-    this._productService.emitEvent({action: 'DeleteProduct', value: this.product})
+    this._productService.emitEventDeleteProduct(this.product)
   }
 }

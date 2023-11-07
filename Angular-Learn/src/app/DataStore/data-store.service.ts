@@ -16,7 +16,9 @@ export class DataStoreService {
     {id: 2, name:"Twisties", image:"https://metiecom.s3.us-east-2.amazonaws.com/800_X_800/129799.jpg"},
   ]
   private _productInvetoryStore: ProductInventory[] = []
-  private _productTransactionStore: ProductTransaction[] = []
+  private _productTransactionStore: ProductTransaction[] = [
+    {}
+  ]
 
   httpGetProduct(id: number): Observable<Product>{
     return of(null).pipe(

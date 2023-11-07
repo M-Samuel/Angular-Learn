@@ -15,6 +15,6 @@ export class ProductComponent implements OnInit{
   
   
   ngOnInit(): void {
-    this._productService.emitEvent({action: 'RequestAllProducts', value: undefined})
+    this._productService.emitEventRequestAllProducts()
   }
 }

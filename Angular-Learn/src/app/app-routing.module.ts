@@ -4,6 +4,7 @@ import { ProductComponent } from './product/product.component';
 import { ProductCreationComponent } from './product-creation/product-creation.component';
 import { ProductEditingComponent } from './product-editing/product-editing.component';
 import { ProductService } from './product/product.service';
+import { ProductTransactionComponent } from './product-transaction/product-transaction.component';
 
 const routes: Routes = [
   { path: 'product/new', component: ProductCreationComponent },
@@ -13,12 +14,13 @@ const routes: Routes = [
       product: productResolver
     }
   },
+  { path: 'product/buysell', component: ProductTransactionComponent,}
 ];
 
 function productResolver(route: ActivatedRouteSnapshot){
   const id = parseInt(route.paramMap.get('id') ?? "-1")
   const productService: ProductService = inject(ProductService)
-  productService.emitEvent({action:'RequestSingleProduct', value: id})
+  productService.emitEventRequestSingleProduct(id)
   return productService.productById$
 }
 

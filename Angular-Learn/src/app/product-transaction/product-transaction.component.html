@@ -1,0 +1,45 @@
+<p>Buy Or Sell Product</p>
+
+<form [formGroup]="transactProductFG" (ngSubmit)="onSubmit()">
+    <select
+        formControlName="productId"
+        id="productId"
+        (change)='onOptionsSelected($event)'
+    >
+        <option *ngFor="let product of allProducts$ | async" value="{{product.id}}">{{product.name}}</option>
+    </select>
+    <br>
+    <input
+        type="number"
+        placeholder="Price"
+        formControlName="price"
+        id="price"
+    >
+    <br>
+    <input
+        type="number"
+        placeholder="quantity"
+        formControlName="quantity"
+        id="quantity"
+    >
+    <br>
+    <input
+        type="radio"
+        formControlName="buysell"
+        id="buy"
+        value="buy"
+    >
+    <label for="buy">Buy</label>
+    <br>
+    <input
+        type="radio"
+        formControlName="buysell"
+        id="sell"
+        value="sell"
+    >
+    <label for="sell">Sell</label>
+    <br>
+    <button type="submit">Submit</button>
+</form>
+
+<p *ngFor="let transaction of transactionsPerProduct$ | async">OKAY</p>

@@ -27,7 +27,7 @@ export class ProductCreationComponent{
       const product: Product = {} as Product
       Object.assign(product, this.createProductFG.value)
       console.log(product)
-      this._productService.emitEvent({action:'CreateNewProduct',value:product})
+      this._productService.emitEventCreateNewProduct(product)
     }
     else{
       console.log(this.createProductFG)
