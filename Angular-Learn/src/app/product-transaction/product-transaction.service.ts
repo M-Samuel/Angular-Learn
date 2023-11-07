@@ -26,7 +26,9 @@ export class ProductTransactionService {
     tap(state => this._resetLastEvent(state))
   )
 
-
+  private _resetLastEvent(state: State): void{
+    this._stateSubject$.next({...state, lastEvent: undefined}) 
+  }
 
   emitEventRequestTransactionsPerProduct(productId: number){
     console.log(undefined, 'emitEventRequestTransactionsPerProduct');
