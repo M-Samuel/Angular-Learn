@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { DataStoreService } from '../DataStore/data-store.service';
 import { Product } from '../types/product';
-import { BehaviorSubject, Observable, OperatorFunction, Subject, filter, map, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, filter, map, switchMap, tap } from 'rxjs';
 import { ProductTransaction } from '../types/product-transaction';
 
 @Injectable({
@@ -22,8 +22,11 @@ export class ProductTransactionService {
   private readonly _stateSubject$ = new BehaviorSubject<State>({} as State)
   private readonly _stateEventHandler$ = this._stateEventHandlerSubject$.asObservable()
   private readonly _state$ = this._stateSubject$.asObservable().pipe(
-    filter(state => !!state.lastEvent)
+    filter(state => !!state.lastEvent),
+    tap(state => this._resetLastEvent(state))
   )
+
+
 
   emitEventRequestTransactionsPerProduct(productId: number){
     console.log(undefined, 'emitEventRequestTransactionsPerProduct');
@@ -48,6 +51,6 @@ type StateEvent =
 
 
 interface State{
-  lastEvent: StateEvent,
+  lastEvent: StateEvent | undefined,
   productId?: number
 }

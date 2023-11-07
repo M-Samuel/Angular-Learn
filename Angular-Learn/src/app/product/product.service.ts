@@ -23,8 +23,13 @@ export class ProductService {
   private readonly _stateSubject$ = new BehaviorSubject<State>({} as State)
   private readonly _stateEventHandler$ = this._stateEventHandlerSubject$.asObservable()
   private readonly _state$ = this._stateSubject$.asObservable().pipe(
-    filter(state => !!state.lastEvent)
+    filter(state => !!state.lastEvent),
+    tap(state => this._resetLastEvent(state))
   )
+
+  private _resetLastEvent(state: State): void{
+    this._stateSubject$.next({...state, lastEvent: undefined}) 
+  }
 
   emitEventCreateNewProduct(newProduct: Product){
     console.log(newProduct, `emitEventCreateNewProduct`)
@@ -112,7 +117,7 @@ type StateEvent =
 
 
 interface State{
-  lastEvent: StateEvent,
+  lastEvent: StateEvent | undefined,
   newProduct?: Product,
   productId?: number
   editedProduct?: Product
