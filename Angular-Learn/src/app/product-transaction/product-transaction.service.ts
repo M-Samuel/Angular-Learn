@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { DataStoreService } from '../DataStore/data-store.service';
 import { Product } from '../types/product';
-import { BehaviorSubject, Observable, OperatorFunction, Subject, filter, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, filter, map, shareReplay, switchMap, tap } from 'rxjs';
 import { ProductTransaction } from '../types/product-transaction';
 
 @Injectable({
@@ -10,49 +10,40 @@ import { ProductTransaction } from '../types/product-transaction';
 export class ProductTransactionService {
 
   private readonly _httpClient: DataStoreService = inject(DataStoreService)
-  constructor() {
-    this._stateEventHandler$.subscribe(stateEventHandler => {
-      const newState = stateEventHandler(this._stateSubject$.value)
-      this._stateSubject$.next(newState)
-    })
-  }
-  
+  private readonly _state: State = {} as State  
 
   private readonly _stateEventHandlerSubject$ = new Subject<UpdateStateHandler>()
-  private readonly _stateSubject$ = new BehaviorSubject<State>({} as State)
-  private readonly _stateEventHandler$ = this._stateEventHandlerSubject$.asObservable()
-  private readonly _state$ = this._stateSubject$.asObservable().pipe(
-    filter(state => !!state.lastEvent),
-    tap(state => this._resetLastEvent(state))
+  private readonly _lastStateEvent$: Observable<LastStateEvent>
+  = this._stateEventHandlerSubject$.asObservable().pipe(
+    map(updateStateHandler => updateStateHandler(this._state)),
+    tap(lastStateEvent => Object.assign(this._state, lastStateEvent.newState)),
+    shareReplay(1)
   )
-
-  private _resetLastEvent(state: State): void{
-    this._stateSubject$.next({...state, lastEvent: undefined}) 
-  }
 
   emitEventRequestTransactionsPerProduct(productId: number){
     console.log(undefined, 'emitEventRequestTransactionsPerProduct');
     const updateStateHandler:UpdateStateHandler = (oldState) => {
-      return {...oldState, lastEvent: 'RequestTransactionsPerProduct', productId: productId}
+      const newState = {...oldState, productId: productId}
+      return {newState: newState, event: 'RequestTransactionsPerProduct'}
     }
     this._stateEventHandlerSubject$.next(updateStateHandler)
   }
 
-  readonly transactionsPerProduct$: Observable<ProductTransaction[]> = this._state$.pipe(
-    filter(state => state.lastEvent === 'RequestTransactionsPerProduct'),
-    filter(state => !!state.productId),
-    map(state => state.productId) as OperatorFunction<State,number>,
+  readonly transactionsPerProduct$: Observable<ProductTransaction[]> = this._lastStateEvent$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'RequestTransactionsPerProduct'),
+    filter(lastStateEvent => !!lastStateEvent.newState.productId),
+    map(lastStateEvent => lastStateEvent.newState.productId) as OperatorFunction<LastStateEvent,number>,
     switchMap(productId => this._httpClient.httpGetAllTransactionsByProductId(productId))
   )
 }
 
-type UpdateStateHandler = (state:State) => State
+type LastStateEvent = {event:Event, newState:State}
+type UpdateStateHandler = (oldState:State) => LastStateEvent
 
-type StateEvent = 
+type Event = 
   'RequestTransactionsPerProduct'
 
 
 interface State{
-  lastEvent: StateEvent | undefined,
   productId?: number
 }

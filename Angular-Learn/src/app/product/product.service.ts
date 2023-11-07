@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, OperatorFunction, Subject, filter, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, delay, filter, map, shareReplay, switchMap, tap } from 'rxjs';
 import { Product } from '../types/product';
 import { DataStoreService } from '../DataStore/data-store.service';
 
@@ -11,30 +11,22 @@ import { DataStoreService } from '../DataStore/data-store.service';
 export class ProductService {
 
   private readonly _httpClient: DataStoreService = inject(DataStoreService)
-  constructor() {
-    this._stateEventHandler$.subscribe(stateEventHandler => {
-      const newState = stateEventHandler(this._stateSubject$.value)
-      this._stateSubject$.next(newState)
-    })
-  }
-  
+
+  private readonly _state: State = {} as State  
 
   private readonly _stateEventHandlerSubject$ = new Subject<UpdateStateHandler>()
-  private readonly _stateSubject$ = new BehaviorSubject<State>({} as State)
-  private readonly _stateEventHandler$ = this._stateEventHandlerSubject$.asObservable()
-  private readonly _state$ = this._stateSubject$.asObservable().pipe(
-    filter(state => !!state.lastEvent),
-    tap(state => this._resetLastEvent(state))
+  private readonly _lastStateEvent$: Observable<LastStateEvent>
+  = this._stateEventHandlerSubject$.asObservable().pipe(
+    map(updateStateHandler => updateStateHandler(this._state)),
+    tap(lastStateEvent => Object.assign(this._state, lastStateEvent.newState)),
+    shareReplay(1)
   )
-
-  private _resetLastEvent(state: State): void{
-    this._stateSubject$.next({...state, lastEvent: undefined}) 
-  }
 
   emitEventCreateNewProduct(newProduct: Product){
     console.log(newProduct, `emitEventCreateNewProduct`)
     const updateStateHandler:UpdateStateHandler = (oldState) => {
-      return {...oldState, lastEvent: 'CreateNewProduct', newProduct: newProduct}
+      const newState = {...oldState, newProduct: newProduct}
+      return {newState: newState, event: 'CreateNewProduct'}
     }
     this._stateEventHandlerSubject$.next(updateStateHandler)
   }
@@ -42,7 +34,8 @@ export class ProductService {
   emitEventRequestSingleProduct(productId: number){
     console.log(productId, `emitEventRequestSingleProduct`)
     const updateStateHandler:UpdateStateHandler = (oldState) => {
-      return {...oldState, lastEvent: 'RequestSingleProduct', productId: productId}
+      const newState = {...oldState, productId: productId}
+      return {newState: newState, event: 'RequestSingleProduct'}
     }
     this._stateEventHandlerSubject$.next(updateStateHandler)
   }
@@ -50,7 +43,8 @@ export class ProductService {
   emitEventEditProduct(editedProduct: Product){
     console.log(editedProduct, `emitEventEditProduct`)
     const updateStateHandler:UpdateStateHandler = (oldState) => {
-      return {...oldState, lastEvent: 'EditProduct', editedProduct: editedProduct}
+      const newState = {...oldState, editedProduct: editedProduct}
+      return {newState: newState, event: 'EditProduct'}
     }
     this._stateEventHandlerSubject$.next(updateStateHandler)
   }
@@ -58,7 +52,8 @@ export class ProductService {
   emitEventDeleteProduct(deletedProduct: Product){
     console.log(deletedProduct, `emitEventDeleteProduct`)
     const updateStateHandler:UpdateStateHandler = (oldState) => {
-      return {...oldState, lastEvent: 'DeleteProduct', deletedProduct: deletedProduct}
+      const newState = {...oldState, deletedProduct: deletedProduct}
+      return {newState: newState, event: 'DeleteProduct'}
     }
     this._stateEventHandlerSubject$.next(updateStateHandler)
   }
@@ -66,49 +61,51 @@ export class ProductService {
   emitEventRequestAllProducts(){
     console.log(undefined, `emitEventRequestAllProducts`)
     const updateStateHandler:UpdateStateHandler = (oldState) => {
-      return {...oldState, lastEvent: 'RequestAllProducts'}
+      const newState = {...oldState}
+      return {newState: newState, event: 'RequestAllProducts'}
     }
     this._stateEventHandlerSubject$.next(updateStateHandler)
   }
 
 
-  readonly products$: Observable<Product[]> = this._state$.pipe(
-    filter(state => state.lastEvent === 'RequestAllProducts'),
-    switchMap(state => this._httpClient.httpGetAllProducts())
+  readonly products$: Observable<Product[]> = this._lastStateEvent$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'RequestAllProducts'),
+    switchMap(lastStateEvent => this._httpClient.httpGetAllProducts())
   )
 
-  readonly createdProduct$ = this._state$.pipe(
-    filter(state => state.lastEvent === 'CreateNewProduct'),
-    filter(state => !!state.newProduct),
-    map(state => state.newProduct) as OperatorFunction<State,Product>,
+  readonly createdProduct$ = this._lastStateEvent$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'CreateNewProduct'),
+    filter(lastStateEvent => !!lastStateEvent.newState.newProduct),
+    map(lastStateEvent => lastStateEvent.newState.newProduct) as OperatorFunction<LastStateEvent,Product>,
     switchMap(product => this._httpClient.httpPostProduct(product))
   )
 
-  readonly productById$: Observable<Product> = this._state$.pipe(
-    filter(state => state.lastEvent === 'RequestSingleProduct'),
-    filter(state => !!state.productId),
-    map(state => state.productId) as OperatorFunction<State,number>,
+  readonly productById$: Observable<Product> = this._lastStateEvent$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'RequestSingleProduct'),
+    filter(lastStateEvent => !!lastStateEvent.newState.productId),
+    map(lastStateEvent => lastStateEvent.newState.productId) as OperatorFunction<LastStateEvent,number>,
     switchMap(productId => this._httpClient.httpGetProduct(productId)),
   )
 
-  readonly editedProduct$: Observable<Product> = this._state$.pipe(
-    filter(state => state.lastEvent === 'EditProduct'),
-    filter(state => !!state.editedProduct),
-    map(state => state.editedProduct) as OperatorFunction<State,Product>,
+  readonly editedProduct$: Observable<Product> = this._lastStateEvent$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'EditProduct'),
+    filter(lastStateEvent => !!lastStateEvent.newState.editedProduct),
+    map(lastStateEvent => lastStateEvent.newState.editedProduct) as OperatorFunction<LastStateEvent,Product>,
     switchMap(product => this._httpClient.httpPutProduct(product))
   )
 
-  readonly deletedProduct$: Observable<Product> = this._state$.pipe(
-    filter(state => state.lastEvent === 'DeleteProduct'),
-    filter(state => !!state.deletedProduct),
-    map(state => state.deletedProduct) as OperatorFunction<State,Product>,
+  readonly deletedProduct$: Observable<Product> = this._lastStateEvent$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'DeleteProduct'),
+    filter(lastStateEvent => !!lastStateEvent.newState.deletedProduct),
+    map(lastStateEvent => lastStateEvent.newState.deletedProduct) as OperatorFunction<LastStateEvent,Product>,
     switchMap(product => this._httpClient.httpDeleteProduct(product))
   )
 }
 
-type UpdateStateHandler = (state:State) => State
+type LastStateEvent = {event:Event, newState:State}
+type UpdateStateHandler = (oldState:State) => LastStateEvent
 
-type StateEvent = 
+type Event = 
   'CreateNewProduct'|
   'RequestAllProducts'|
   'RequestSingleProduct'|
@@ -117,7 +114,6 @@ type StateEvent =
 
 
 interface State{
-  lastEvent: StateEvent | undefined,
   newProduct?: Product,
   productId?: number
   editedProduct?: Product
