@@ -42,4 +42,4 @@
     <button type="submit">Submit</button>
 </form>
 
-<p *ngFor="let transaction of transactionsPerProduct$ | async">OKAY</p>
+<p *ngFor="let transaction of transactionsPerProduct$ | async">{{transaction | json}}</p>

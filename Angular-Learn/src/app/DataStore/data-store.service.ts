@@ -17,7 +17,10 @@ export class DataStoreService {
   ]
   private _productInvetoryStore: ProductInventory[] = []
   private _productTransactionStore: ProductTransaction[] = [
-    {}
+    {
+      buyOrder: {price: 10, quantity: 15, productId: 1},
+      transactionDate: new Date()
+    }
   ]
 
   httpGetProduct(id: number): Observable<Product>{
