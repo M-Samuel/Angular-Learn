@@ -13,12 +13,15 @@ export class ProductTransactionService {
   private readonly _state: State = {} as State  
 
   private readonly _stateEventHandlerSubject$ = new Subject<UpdateStateHandler>()
-  private readonly _lastStateEvent$: Observable<LastStateEvent>
-  = this._stateEventHandlerSubject$.asObservable().pipe(
+  private readonly _lastStateEvent$: Observable<LastStateEvent> = this._stateEventHandlerSubject$.asObservable().pipe(
+    shareReplay(1, 500),
     map(updateStateHandler => updateStateHandler(this._state)),
-    tap(lastStateEvent => Object.assign(this._state, lastStateEvent.newState)),
-    shareReplay(1)
+    tap(lastStateEvent => Object.assign(this._state, lastStateEvent.newState))
   )
+
+  constructor(){
+    this._lastStateEvent$.subscribe(lastStateEvent => console.log(lastStateEvent))
+  }
 
   emitEventRequestTransactionsPerProduct(productId: number){
     console.log(undefined, 'emitEventRequestTransactionsPerProduct');
