@@ -15,7 +15,9 @@ export class DataStoreService {
     {id: 1, name:"Astor", image:"https://metiecom.s3.us-east-2.amazonaws.com/800_X_800/100277.jpg"},
     {id: 2, name:"Twisties", image:"https://metiecom.s3.us-east-2.amazonaws.com/800_X_800/129799.jpg"},
   ]
-  private _productInvetoryStore: ProductInventory[] = []
+  private _productInvetoryStore: ProductInventory[] = [
+    { productId: 1, quantity: 15 }
+  ]
   private _productTransactionStore: ProductTransaction[] = [
     {
       buyOrder: {price: 10, quantity: 15, productId: 1},

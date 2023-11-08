@@ -5,6 +5,7 @@ import { ProductCreationComponent } from './product-creation/product-creation.co
 import { ProductEditingComponent } from './product-editing/product-editing.component';
 import { ProductService } from './product/product.service';
 import { ProductTransactionComponent } from './product-transaction/product-transaction.component';
+import { ProductInventoryComponent } from './product-inventory/product-inventory.component';
 
 const routes: Routes = [
   { path: 'product/new', component: ProductCreationComponent },
@@ -14,7 +15,8 @@ const routes: Routes = [
       product: productResolver
     }
   },
-  { path: 'product/buysell', component: ProductTransactionComponent,}
+  { path: 'product/buysell', component: ProductTransactionComponent,},
+  { path: 'product/inventory', component: ProductInventoryComponent,}
 ];
 
 function productResolver(route: ActivatedRouteSnapshot){

@@ -8,13 +8,15 @@ import { ProductCreationComponent } from './product-creation/product-creation.co
 import { ReactiveFormsModule } from '@angular/forms';
 import { ProductEditingComponent } from './product-editing/product-editing.component';
 import { ProductTransactionComponent } from './product-transaction/product-transaction.component';
+import { ProductInventoryComponent } from './product-inventory/product-inventory.component';
 @NgModule({
   declarations: [
     AppComponent,
     ProductComponent,
     ProductCreationComponent,
     ProductEditingComponent,
-    ProductTransactionComponent
+    ProductTransactionComponent,
+    ProductInventoryComponent
   ],
   imports: [
     BrowserModule,

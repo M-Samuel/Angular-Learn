@@ -1,0 +1,12 @@
+<p>Inventory</p>
+
+<table>
+    <tr>
+        <th>ProductId</th>
+        <th>Quantity</th>
+    </tr>
+    <tr *ngFor="let inventory of productsInventory$ | async">
+        <td>{{inventory.productId}}</td>
+        <td>{{inventory.quantity}}</td>
+    </tr>
+</table>
