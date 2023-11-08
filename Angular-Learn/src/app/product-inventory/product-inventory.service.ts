@@ -34,7 +34,7 @@ export class ProductInventoryService {
   }
 
 
-  readonly productsInventory$: Observable<ProductInventory[]> = this._lastStateEvent$.pipe(
+  readonly productInventories$: Observable<ProductInventory[]> = this._lastStateEvent$.pipe(
     filter(stateEvent => stateEvent.event === 'RequestAllInventory'),
     switchMap(stateEvent => this._httpClient.httpGetAllInventories())
   )

@@ -16,11 +16,16 @@ export class DataStoreService {
     {id: 2, name:"Twisties", image:"https://metiecom.s3.us-east-2.amazonaws.com/800_X_800/129799.jpg"},
   ]
   private _productInvetoryStore: ProductInventory[] = [
-    { productId: 1, quantity: 15 }
+    { productId: 1, quantity: 15 },
+    { productId: 2, quantity: 25 },
   ]
   private _productTransactionStore: ProductTransaction[] = [
     {
       buyOrder: {price: 10, quantity: 15, productId: 1},
+      transactionDate: new Date()
+    },
+    {
+      buyOrder: {price: 15, quantity: 25, productId: 2},
       transactionDate: new Date()
     }
   ]

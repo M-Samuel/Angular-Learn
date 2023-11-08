@@ -3,10 +3,16 @@
 <table>
     <tr>
         <th>ProductId</th>
+        <th>Name</th>
         <th>Quantity</th>
     </tr>
-    <tr *ngFor="let inventory of productsInventory$ | async">
-        <td>{{inventory.productId}}</td>
-        <td>{{inventory.quantity}}</td>
+    <tr *ngFor="let val of productInventories$ | async">
+        <td>{{val.product.id}}</td>
+        <td>{{val.product.name}}</td>
+        <td>{{val.inventory.quantity}}</td>
     </tr>
+    <!-- <tr *ngIf="productInventories$ | async as val">
+        <td>{{val.product.id}}</td>
+        <td>{{val.inventory.quantity}}</td>
+    </tr> -->
 </table>
