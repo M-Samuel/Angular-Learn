@@ -41,5 +41,13 @@
     <br>
     <button type="submit">Submit</button>
 </form>
-
+<ng-container *ngIf="hasSubmitted">
+    <p class="errors" *ngIf="productIdControlErrors?.['required']">Product Id is required</p>
+    <p class="errors" *ngIf="quantityControlErrors?.['required']">Quantity is required</p>
+    <p class="errors" *ngIf="priceControlErrors?.['required']">Price is required</p>
+    <p class="errors" *ngIf="buysellControlErrors?.['required']">BuySell is required</p>
+    <p class="errors" *ngIf="quantityControlErrors?.['max']">Quantity should not exceed {{quantityControlErrors?.['max'].max}}, actual:{{quantityControlErrors?.['max'].actual}}</p>
+    <p class="errors" *ngIf="priceControlErrors?.['max']">Price should not exceed {{priceControlErrors?.['max'].max}}, actual:{{priceControlErrors?.['max'].actual}}</p>
+    <p class="errors" *ngIf="generalControlErrors?.['InventoryStockExceeded']">Sell Quantity should not exceed {{generalControlErrors?.['InventoryStock']}}, actual:{{generalControlErrors?.['SellQuantity']}}</p>
+</ng-container>
 <p *ngFor="let transaction of transactionsPerProduct$ | async">{{transaction | json}}</p>
