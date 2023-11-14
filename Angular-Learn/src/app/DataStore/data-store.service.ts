@@ -101,7 +101,7 @@ export class DataStoreService {
     return of(null).pipe(
       map(_ => {
         const transactions = [...this._productTransactionStore]
-        const transaction = {...productTransaction, date: new Date()}
+        const transaction:ProductTransaction = {...productTransaction, transactionDate: new Date()}
         transactions.push(transaction)
       
         this._productTransactionStore = transactions
@@ -120,13 +120,14 @@ export class DataStoreService {
       productId = productTransaction.sellOrder.productId
     const productIndex = newInventory.findIndex(i => i.productId === productId)
     let productInventory: ProductInventory;
-    const quantity = productTransaction.buyOrder ? productTransaction.buyOrder.quantity : ( productTransaction.sellOrder ? productTransaction.sellOrder.quantity : 0 )
+    const quantity = productTransaction.buyOrder ? productTransaction.buyOrder.quantity : ( productTransaction.sellOrder ? productTransaction.sellOrder.quantity * -1 : 0 )
     if(productIndex < 0){
       productInventory = {productId: productId, quantity: quantity}
       newInventory.push(productInventory)
     }
     else{
-      productInventory =  {...newInventory[productIndex], quantity: quantity}
+      const newQuantity = newInventory[productIndex].quantity + quantity
+      productInventory =  {...newInventory[productIndex], quantity: newQuantity}
       newInventory[productIndex] = productInventory;
     }
 

@@ -15,7 +15,7 @@ export class EventSourcing<S extends {}, E>{
         this.sub = this.lastStateEvent$.subscribe(lastStateEvent => console.log(lastStateEvent))
     }
 
-    OnDestroy() {
+    Destroy() {
         this.sub.unsubscribe()
     }
 

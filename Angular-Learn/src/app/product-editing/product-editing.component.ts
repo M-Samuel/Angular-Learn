@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../types/product';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { ProductService } from '../product/product.service';
+import { ProductService } from '../services/product.service';
 import { simpleUrlValidator } from '../product-creation/product-creation.component';
 import { Observable, OperatorFunction, Subscription, filter, map, switchMap } from 'rxjs';
 import { EventSourcing, LastStateEvent } from '../Helpers/EventSourcing';
@@ -55,6 +55,7 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
     this.editedProductSubscription.unsubscribe()
     this.deletedProductSubscription.unsubscribe()
+    this._eventSourcing.Destroy()
   }
 
   ngOnInit(): void {

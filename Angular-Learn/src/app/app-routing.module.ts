@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, RouterModule, Routes } from '@angular/router';
 import { ProductComponent } from './product/product.component';
 import { ProductCreationComponent } from './product-creation/product-creation.component';
 import { ProductEditingComponent } from './product-editing/product-editing.component';
-import { ProductService } from './product/product.service';
+import { ProductService } from './services/product.service';
 import { ProductTransactionComponent } from './product-transaction/product-transaction.component';
 import { ProductInventoryComponent } from './product-inventory/product-inventory.component';
 

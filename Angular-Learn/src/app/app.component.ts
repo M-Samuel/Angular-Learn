@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ProductService } from './product/product.service';
+import { ProductService } from './services/product.service';
 
 @Component({
   selector: 'app-root',
