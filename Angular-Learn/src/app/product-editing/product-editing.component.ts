@@ -4,7 +4,8 @@ import { Product } from '../types/product';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ProductService } from '../product/product.service';
 import { simpleUrlValidator } from '../product-creation/product-creation.component';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, OperatorFunction, Subscription, filter, map, switchMap } from 'rxjs';
+import { EventSourcing, LastStateEvent } from '../Helpers/EventSourcing';
 
 @Component({
   selector: 'app-product-editing',
@@ -13,6 +14,8 @@ import { Observable, Subscription } from 'rxjs';
 })
 export class ProductEditingComponent implements OnInit, OnDestroy{
   private readonly activateRoute: ActivatedRoute = inject(ActivatedRoute)
+  private readonly _eventSourcing:EventSourcing<State,Event> = new EventSourcing<State,Event>()
+  private readonly _eventStream$ = this._eventSourcing.lastStateEvent$
   product!: Product
   hasSubmitted: boolean = false
   editedProductSubscription: Subscription;
@@ -27,8 +30,19 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
     image: new FormControl<string|null>(null,{validators: [Validators.required, simpleUrlValidator], updateOn: 'submit'})
   })
 
-  readonly editedProduct$: Observable<Product> = this._productService.editedProduct$
-  readonly deletedProduct$: Observable<Product> = this._productService.deletedProduct$
+  readonly editedProduct$: Observable<Product> = this._eventStream$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'EditProduct'),
+    filter(lastStateEvent => !!lastStateEvent.newState.editedProduct),
+    map(lastStateEvent => lastStateEvent.newState.editedProduct) as OperatorFunction<LastStateEvent<State,Event>, Product>,
+    switchMap(product => this._productService.editProduct$(product))
+  )
+
+  readonly deletedProduct$: Observable<Product> = this._eventStream$.pipe(
+    filter(lastStateEvent => lastStateEvent.event === 'DeleteProduct'),
+    filter(lastStateEvent => !!lastStateEvent.newState.deletedProduct),
+    map(lastStateEvent => lastStateEvent.newState.deletedProduct) as OperatorFunction<LastStateEvent<State,Event>, Product>,
+    switchMap(product => this._productService.deleteProduct$(product))
+  )
   
   constructor(){
     this.editedProductSubscription = this.editedProduct$.subscribe(
@@ -49,13 +63,29 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
     this.imageControl.setValue(this.product.image)
   }
 
+  emitEventEditProduct(editedProduct: Product){
+    console.log(editedProduct, `emitEventEditProduct`)
+    this._eventSourcing.emit((oldState) => {
+      const newState:State = {...oldState, editedProduct: editedProduct}
+      return {newState: newState, event: 'EditProduct'} 
+    })
+  }
+
+  emitEventDeleteProduct(deletedProduct: Product){
+    console.log(deletedProduct, `emitEventDeleteProduct`)
+    this._eventSourcing.emit((oldState) => {
+      const newState:State = {...oldState, deletedProduct: deletedProduct}
+      return {newState: newState, event: 'DeleteProduct'} 
+    })
+  }
+
   onSubmit(){
     this.hasSubmitted = true
     if(this.editProductFG.valid){
       const product: Product = {...this.product} as Product
       Object.assign(product, this.editProductFG.value)
       console.log(product)
-      this._productService.emitEventEditProduct(product)
+      this.emitEventEditProduct(product)
     }
     else{
       console.log(this.editProductFG)
@@ -72,6 +102,16 @@ export class ProductEditingComponent implements OnInit, OnDestroy{
 
 
   onDelete(){
-    this._productService.emitEventDeleteProduct(this.product)
+    this.emitEventDeleteProduct(this.product)
   }
+}
+
+type Event = 
+  'EditProduct'|
+  'DeleteProduct'
+
+
+interface State{
+  editedProduct?: Product
+  deletedProduct?: Product
 }

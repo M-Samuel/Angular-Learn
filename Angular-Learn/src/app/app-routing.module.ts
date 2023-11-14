@@ -22,8 +22,7 @@ const routes: Routes = [
 function productResolver(route: ActivatedRouteSnapshot){
   const id = parseInt(route.paramMap.get('id') ?? "-1")
   const productService: ProductService = inject(ProductService)
-  productService.emitEventRequestSingleProduct(id)
-  return productService.productById$
+  return productService.getProductById$(id)
 }
 
 @NgModule({

@@ -17,13 +17,17 @@ export class ProductService {
 
   private readonly _stateEventHandlerSubject$ = new Subject<UpdateStateHandler>()
   private readonly _lastStateEvent$: Observable<LastStateEvent> = this._stateEventHandlerSubject$.asObservable().pipe(
-    shareReplay(1, 500),
+    // shareReplay(1, 500),
     map(updateStateHandler => updateStateHandler(this._state)),
     tap(lastStateEvent => Object.assign(this._state, lastStateEvent.newState))
   )
 
   constructor(){
     this._lastStateEvent$.subscribe(lastStateEvent => console.log(lastStateEvent))
+  }
+
+  getAllProducts(): Observable<Product[]>{
+    return this._httpClient.httpGetAllProducts()
   }
 
   emitEventCreateNewProduct(newProduct: Product){
@@ -84,6 +88,10 @@ export class ProductService {
     switchMap(product => this._httpClient.httpPostProduct(product))
   )
 
+  getProductById$(productId:number):Observable<Product>{
+    return this._httpClient.httpGetProduct(productId)
+  }
+
   readonly productById$: Observable<Product> = this._lastStateEvent$.pipe(
     filter(lastStateEvent => lastStateEvent.event === 'RequestSingleProduct'),
     filter(lastStateEvent => !!lastStateEvent.newState.productId),
@@ -98,12 +106,20 @@ export class ProductService {
     switchMap(product => this._httpClient.httpPutProduct(product))
   )
 
+  editProduct$(product:Product): Observable<Product>{
+    return this._httpClient.httpPutProduct(product)
+  }
+
   readonly deletedProduct$: Observable<Product> = this._lastStateEvent$.pipe(
     filter(lastStateEvent => lastStateEvent.event === 'DeleteProduct'),
     filter(lastStateEvent => !!lastStateEvent.newState.deletedProduct),
     map(lastStateEvent => lastStateEvent.newState.deletedProduct) as OperatorFunction<LastStateEvent,Product>,
     switchMap(product => this._httpClient.httpDeleteProduct(product))
   )
+
+  deleteProduct$(product:Product): Observable<Product>{
+    return this._httpClient.httpDeleteProduct(product)
+  }
 }
 
 type LastStateEvent = {event:Event, newState:State}
